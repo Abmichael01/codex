@@ -20,7 +20,7 @@ namespace NinjaTrader.NinjaScript.Indicators
     public class ZUPHarmonicsRatioBased : Indicator
     {
         private List<PivotPoint> fourHourPivots;
-        private int pivotLookback = 3;
+        private int pivotLookback = 1;
         private DateTime lastDebugTime = DateTime.MinValue;
         private int debugCounter = 0;
         private int lastProcessed4HBar = -1;
@@ -85,6 +85,7 @@ namespace NinjaTrader.NinjaScript.Indicators
                 ShowStatusText = true;
                 ShowPatterns = true;
                 PatternVisibilityDays = 5;
+                PivotLookback = 1; // require only one bar on each side to confirm pivots
 
                 fourHourPivots = new List<PivotPoint>();
 
@@ -573,6 +574,15 @@ namespace NinjaTrader.NinjaScript.Indicators
         [Display(Name = "Pattern Visibility Days", Order = 8, GroupName = "Detection")]
         public int PatternVisibilityDays { get; set; }
 
+        [NinjaScriptProperty]
+        [Range(1, 5)]
+        [Display(Name = "Pivot Confirmation Bars", Order = 9, GroupName = "Detection")]
+        public int PivotLookback
+        {
+            get { return pivotLookback; }
+            set { pivotLookback = value; }
+        }
+
         #endregion
     }
 
@@ -619,18 +629,18 @@ namespace NinjaTrader.NinjaScript.Indicators
     public partial class Indicator : NinjaTrader.Gui.NinjaScript.IndicatorRenderBase
     {
         private ZUPHarmonicsRatioBased[] cacheZUPHarmonicsRatioBased;
-        public ZUPHarmonicsRatioBased ZUPHarmonicsRatioBased(Brush patternLineColor, Brush rectangleColor, int rectangleOpacity, bool showPivotDots, bool showStatusText, bool showPatterns, bool enableAlerts, double priceTolerance, int maxPatternBars, int patternVisibilityDays)
+        public ZUPHarmonicsRatioBased ZUPHarmonicsRatioBased(Brush patternLineColor, Brush rectangleColor, int rectangleOpacity, bool showPivotDots, bool showStatusText, bool showPatterns, bool enableAlerts, double priceTolerance, int maxPatternBars, int patternVisibilityDays, int pivotLookback)
         {
-            return ZUPHarmonicsRatioBased(Input, patternLineColor, rectangleColor, rectangleOpacity, showPivotDots, showStatusText, showPatterns, enableAlerts, priceTolerance, maxPatternBars, patternVisibilityDays);
+            return ZUPHarmonicsRatioBased(Input, patternLineColor, rectangleColor, rectangleOpacity, showPivotDots, showStatusText, showPatterns, enableAlerts, priceTolerance, maxPatternBars, patternVisibilityDays, pivotLookback);
         }
 
-        public ZUPHarmonicsRatioBased ZUPHarmonicsRatioBased(ISeries<double> input, Brush patternLineColor, Brush rectangleColor, int rectangleOpacity, bool showPivotDots, bool showStatusText, bool showPatterns, bool enableAlerts, double priceTolerance, int maxPatternBars, int patternVisibilityDays)
+        public ZUPHarmonicsRatioBased ZUPHarmonicsRatioBased(ISeries<double> input, Brush patternLineColor, Brush rectangleColor, int rectangleOpacity, bool showPivotDots, bool showStatusText, bool showPatterns, bool enableAlerts, double priceTolerance, int maxPatternBars, int patternVisibilityDays, int pivotLookback)
         {
             if (cacheZUPHarmonicsRatioBased != null)
                 for (int idx = 0; idx < cacheZUPHarmonicsRatioBased.Length; idx++)
-                    if (cacheZUPHarmonicsRatioBased[idx] != null && cacheZUPHarmonicsRatioBased[idx].PatternLineColor == patternLineColor && cacheZUPHarmonicsRatioBased[idx].RectangleColor == rectangleColor && cacheZUPHarmonicsRatioBased[idx].RectangleOpacity == rectangleOpacity && cacheZUPHarmonicsRatioBased[idx].ShowPivotDots == showPivotDots && cacheZUPHarmonicsRatioBased[idx].ShowStatusText == showStatusText && cacheZUPHarmonicsRatioBased[idx].ShowPatterns == showPatterns && cacheZUPHarmonicsRatioBased[idx].EnableAlerts == enableAlerts && cacheZUPHarmonicsRatioBased[idx].PriceTolerance == priceTolerance && cacheZUPHarmonicsRatioBased[idx].MaxPatternBars == maxPatternBars && cacheZUPHarmonicsRatioBased[idx].PatternVisibilityDays == patternVisibilityDays && cacheZUPHarmonicsRatioBased[idx].EqualsInput(input))
+                    if (cacheZUPHarmonicsRatioBased[idx] != null && cacheZUPHarmonicsRatioBased[idx].PatternLineColor == patternLineColor && cacheZUPHarmonicsRatioBased[idx].RectangleColor == rectangleColor && cacheZUPHarmonicsRatioBased[idx].RectangleOpacity == rectangleOpacity && cacheZUPHarmonicsRatioBased[idx].ShowPivotDots == showPivotDots && cacheZUPHarmonicsRatioBased[idx].ShowStatusText == showStatusText && cacheZUPHarmonicsRatioBased[idx].ShowPatterns == showPatterns && cacheZUPHarmonicsRatioBased[idx].EnableAlerts == enableAlerts && cacheZUPHarmonicsRatioBased[idx].PriceTolerance == priceTolerance && cacheZUPHarmonicsRatioBased[idx].MaxPatternBars == maxPatternBars && cacheZUPHarmonicsRatioBased[idx].PatternVisibilityDays == patternVisibilityDays && cacheZUPHarmonicsRatioBased[idx].PivotLookback == pivotLookback && cacheZUPHarmonicsRatioBased[idx].EqualsInput(input))
                         return cacheZUPHarmonicsRatioBased[idx];
-            return CacheIndicator<ZUPHarmonicsRatioBased>(new ZUPHarmonicsRatioBased() { PatternLineColor = patternLineColor, RectangleColor = rectangleColor, RectangleOpacity = rectangleOpacity, ShowPivotDots = showPivotDots, ShowStatusText = showStatusText, ShowPatterns = showPatterns, EnableAlerts = enableAlerts, PriceTolerance = priceTolerance, MaxPatternBars = maxPatternBars, PatternVisibilityDays = patternVisibilityDays }, input, ref cacheZUPHarmonicsRatioBased);
+            return CacheIndicator<ZUPHarmonicsRatioBased>(new ZUPHarmonicsRatioBased() { PatternLineColor = patternLineColor, RectangleColor = rectangleColor, RectangleOpacity = rectangleOpacity, ShowPivotDots = showPivotDots, ShowStatusText = showStatusText, ShowPatterns = showPatterns, EnableAlerts = enableAlerts, PriceTolerance = priceTolerance, MaxPatternBars = maxPatternBars, PatternVisibilityDays = patternVisibilityDays, PivotLookback = pivotLookback }, input, ref cacheZUPHarmonicsRatioBased);
         }
     }
 }
@@ -639,14 +649,14 @@ namespace NinjaTrader.NinjaScript.MarketAnalyzerColumns
 {
     public partial class MarketAnalyzerColumn : MarketAnalyzerColumnBase
     {
-        public Indicators.ZUPHarmonicsRatioBased ZUPHarmonicsRatioBased(Brush patternLineColor, Brush rectangleColor, int rectangleOpacity, bool showPivotDots, bool showStatusText, bool showPatterns, bool enableAlerts, double priceTolerance, int maxPatternBars, int patternVisibilityDays)
+        public Indicators.ZUPHarmonicsRatioBased ZUPHarmonicsRatioBased(Brush patternLineColor, Brush rectangleColor, int rectangleOpacity, bool showPivotDots, bool showStatusText, bool showPatterns, bool enableAlerts, double priceTolerance, int maxPatternBars, int patternVisibilityDays, int pivotLookback)
         {
-            return indicator.ZUPHarmonicsRatioBased(Input, patternLineColor, rectangleColor, rectangleOpacity, showPivotDots, showStatusText, showPatterns, enableAlerts, priceTolerance, maxPatternBars, patternVisibilityDays);
+            return indicator.ZUPHarmonicsRatioBased(Input, patternLineColor, rectangleColor, rectangleOpacity, showPivotDots, showStatusText, showPatterns, enableAlerts, priceTolerance, maxPatternBars, patternVisibilityDays, pivotLookback);
         }
 
-        public Indicators.ZUPHarmonicsRatioBased ZUPHarmonicsRatioBased(ISeries<double> input, Brush patternLineColor, Brush rectangleColor, int rectangleOpacity, bool showPivotDots, bool showStatusText, bool showPatterns, bool enableAlerts, double priceTolerance, int maxPatternBars, int patternVisibilityDays)
+        public Indicators.ZUPHarmonicsRatioBased ZUPHarmonicsRatioBased(ISeries<double> input, Brush patternLineColor, Brush rectangleColor, int rectangleOpacity, bool showPivotDots, bool showStatusText, bool showPatterns, bool enableAlerts, double priceTolerance, int maxPatternBars, int patternVisibilityDays, int pivotLookback)
         {
-            return indicator.ZUPHarmonicsRatioBased(input, patternLineColor, rectangleColor, rectangleOpacity, showPivotDots, showStatusText, showPatterns, enableAlerts, priceTolerance, maxPatternBars, patternVisibilityDays);
+            return indicator.ZUPHarmonicsRatioBased(input, patternLineColor, rectangleColor, rectangleOpacity, showPivotDots, showStatusText, showPatterns, enableAlerts, priceTolerance, maxPatternBars, patternVisibilityDays, pivotLookback);
         }
     }
 }
@@ -655,14 +665,14 @@ namespace NinjaTrader.NinjaScript.Strategies
 {
     public partial class Strategy : NinjaTrader.Gui.NinjaScript.StrategyRenderBase
     {
-        public Indicators.ZUPHarmonicsRatioBased ZUPHarmonicsRatioBased(Brush patternLineColor, Brush rectangleColor, int rectangleOpacity, bool showPivotDots, bool showStatusText, bool showPatterns, bool enableAlerts, double priceTolerance, int maxPatternBars, int patternVisibilityDays)
+        public Indicators.ZUPHarmonicsRatioBased ZUPHarmonicsRatioBased(Brush patternLineColor, Brush rectangleColor, int rectangleOpacity, bool showPivotDots, bool showStatusText, bool showPatterns, bool enableAlerts, double priceTolerance, int maxPatternBars, int patternVisibilityDays, int pivotLookback)
         {
-            return indicator.ZUPHarmonicsRatioBased(Input, patternLineColor, rectangleColor, rectangleOpacity, showPivotDots, showStatusText, showPatterns, enableAlerts, priceTolerance, maxPatternBars, patternVisibilityDays);
+            return indicator.ZUPHarmonicsRatioBased(Input, patternLineColor, rectangleColor, rectangleOpacity, showPivotDots, showStatusText, showPatterns, enableAlerts, priceTolerance, maxPatternBars, patternVisibilityDays, pivotLookback);
         }
 
-        public Indicators.ZUPHarmonicsRatioBased ZUPHarmonicsRatioBased(ISeries<double> input, Brush patternLineColor, Brush rectangleColor, int rectangleOpacity, bool showPivotDots, bool showStatusText, bool showPatterns, bool enableAlerts, double priceTolerance, int maxPatternBars, int patternVisibilityDays)
+        public Indicators.ZUPHarmonicsRatioBased ZUPHarmonicsRatioBased(ISeries<double> input, Brush patternLineColor, Brush rectangleColor, int rectangleOpacity, bool showPivotDots, bool showStatusText, bool showPatterns, bool enableAlerts, double priceTolerance, int maxPatternBars, int patternVisibilityDays, int pivotLookback)
         {
-            return indicator.ZUPHarmonicsRatioBased(input, patternLineColor, rectangleColor, rectangleOpacity, showPivotDots, showStatusText, showPatterns, enableAlerts, priceTolerance, maxPatternBars, patternVisibilityDays);
+            return indicator.ZUPHarmonicsRatioBased(input, patternLineColor, rectangleColor, rectangleOpacity, showPivotDots, showStatusText, showPatterns, enableAlerts, priceTolerance, maxPatternBars, patternVisibilityDays, pivotLookback);
         }
     }
 }
